@@ -1,0 +1,133 @@
+{
+  "stage": "Stage 5 \u2014 Machine Learning",
+  "target": "WQI_score",
+  "feature_set": "Option A (Final Implementation Scope)",
+  "features": [
+    "Temp_mean",
+    "DO_assumed_mean",
+    "pH_mean",
+    "BOD_mean",
+    "Year",
+    "State_Name",
+    "Water_Body_Type"
+  ],
+  "numeric_features": [
+    "Temp_mean",
+    "DO_assumed_mean",
+    "pH_mean",
+    "BOD_mean",
+    "Year"
+  ],
+  "categorical_features": [
+    "State_Name",
+    "Water_Body_Type"
+  ],
+  "validation": "5-fold GroupKFold (groups = STN_code)",
+  "n_rows": 160,
+  "n_stations": 150,
+  "models": {
+    "ridge_regression": {
+      "params": {
+        "alpha": 1.0
+      },
+      "mean_rmse": 21.5476,
+      "std_rmse": 16.786,
+      "mean_r2": -0.1961,
+      "std_r2": 1.594,
+      "fold_results": [
+        {
+          "fold": 1,
+          "train_n": 128,
+          "val_n": 32,
+          "rmse": 10.456725163340508,
+          "r2": 0.5581296532330587
+        },
+        {
+          "fold": 2,
+          "train_n": 128,
+          "val_n": 32,
+          "rmse": 11.668987052852577,
+          "r2": 0.6296583076986304
+        },
+        {
+          "fold": 3,
+          "train_n": 128,
+          "val_n": 32,
+          "rmse": 13.559955471517993,
+          "r2": 0.48719954476801963
+        },
+        {
+          "fold": 4,
+          "train_n": 128,
+          "val_n": 32,
+          "rmse": 21.47580097397474,
+          "r2": 0.3873187158409436
+        },
+        {
+          "fold": 5,
+          "train_n": 128,
+          "val_n": 32,
+          "rmse": 50.576430748138044,
+          "r2": -3.04305398692306
+        }
+      ]
+    },
+    "random_forest": {
+      "params": {
+        "n_estimators": 200,
+        "min_samples_leaf": 3,
+        "random_state": 42
+      },
+      "mean_rmse": 4.7012,
+      "std_rmse": 1.5874,
+      "mean_r2": 0.9513,
+      "std_r2": 0.0167,
+      "fold_results": [
+        {
+          "fold": 1,
+          "train_n": 128,
+          "val_n": 32,
+          "rmse": 3.4408935945511487,
+          "r2": 0.9521539647046405
+        },
+        {
+          "fold": 2,
+          "train_n": 128,
+          "val_n": 32,
+          "rmse": 3.246876342113118,
+          "r2": 0.9713273529764197
+        },
+        {
+          "fold": 3,
+          "train_n": 128,
+          "val_n": 32,
+          "rmse": 4.1132729123532,
+          "r2": 0.9528146776417437
+        },
+        {
+          "fold": 4,
+          "train_n": 128,
+          "val_n": 32,
+          "rmse": 5.8154784387970615,
+          "r2": 0.9550730669121419
+        },
+        {
+          "fold": 5,
+          "train_n": 128,
+          "val_n": 32,
+          "rmse": 6.889436137723775,
+          "r2": 0.9249793982387554
+        }
+      ]
+    }
+  },
+  "disclosures": [
+    "DO_assumed_mean is UNVERIFIED \u2014 column 'Dissolved' in raw data assumed to be Dissolved Oxygen (mg/L) based on value-range evidence only; not confirmed against CPCB data dictionary.",
+    "WQI_score is a MODIFIED/CUSTOM index (Brown 1970 formula structure + project-specific parametrisation); not identical to any single published index.",
+    "Annual representative values use (Min+Max)/2 \u2014 range-midpoint approximation, not a true annual mean.",
+    "PARTIAL TARGET LEAKAGE: DO_assumed_mean, pH_mean, and BOD_mean are also WQI component variables. The model partially reconstructs the WQI formula from these inputs and does NOT independently predict water quality.",
+    "Stage 3 upstream group-median imputation was applied before fold splitting. In-fold re-imputation is applied here to mitigate but cannot fully eliminate residual leakage for the ~5% imputed rows."
+  ],
+  "best_model": "random_forest",
+  "best_model_file": "model/best_model.pkl"
+}
