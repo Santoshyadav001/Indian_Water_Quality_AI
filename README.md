@@ -37,6 +37,7 @@ Surface water quality in India varies significantly by geography, water body typ
 | Property | Value |
 |---|---|
 | Source | CPCB National Water Quality Monitoring Programme (NWMP) |
+| Dataset Link | [https://www.kaggle.com/datasets/rishabchitloor/indian-water-quality-data-2021-2023](https://www.kaggle.com/datasets/rishabchitloor/indian-water-quality-data-2021-2023) |
 | File | `data/Indian_water_data.csv` |
 | Rows | 194 station-year observations |
 | Columns | 23 (station identifiers + 9 parameter Min/Max pairs) |
