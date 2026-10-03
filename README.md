@@ -34,30 +34,43 @@ Surface water quality in India varies significantly by geography, water body typ
 
 ## Dataset
 
-| Property | Value |
-|---|---|
-| Source | CPCB National Water Quality Monitoring Programme (NWMP) |
-| Dataset Link | [https://www.kaggle.com/datasets/rishabchitloor/indian-water-quality-data-2021-2023](https://www.kaggle.com/datasets/rishabchitloor/indian-water-quality-data-2021-2023) |
-| File | `data/Indian_water_data.csv` |
-| Rows | 194 station-year observations |
-| Columns | 23 (station identifiers + 9 parameter Min/Max pairs) |
-| Years | 2021, 2022, 2023 |
-| States | 17 |
-| Water body types | 11 (RIVER, LAKE, CANAL, DRAIN, POND, STP, BEACH, MARINE, SEA, CREEK, WATER TREATMENT PLANT) |
-| Rows used for WQI/ML | 160 (freshwater only; 34 saline rows excluded) |
+| Property         | Value                                                                                                                     |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| Source           | CPCB National Water Quality Monitoring Programme (NWMP)                                                                   |
+| Dataset Link     | [Indian Water Quality Data 2021–2023](https://www.kaggle.com/datasets/rishabchitloor/indian-water-quality-data-2021-2023) |
+| File             | `data/Indian_water_data.csv`                                                                                              |
+| Raw Records      | 194 station-year observations                                                                                             |
+| Raw Columns      | 23                                                                                                                        |
+| Years Covered    | 2021–2023                                                                                                                 |
+| States           | 17                                                                                                                        |
+| Water Body Types | 11                                                                                                                        |
+| WQI/ML Records   | 160                                                                                                                       |
+| Excluded Records | 34 saline rows                                                                                                            |
 
-**The raw CSV (`data/Indian_water_data.csv`) is never modified.** All outputs are written to `data/processed/`.
+The dataset contains station-level water quality observations from India, including water-body information and measured water-quality parameters represented through annual minimum and maximum values.
+
+For annual modeling, parameter values are represented using the midpoint approximation:
+
+```text
+Annual Value = (Min + Max) / 2
+```
+
+This is a range-midpoint approximation and should not be interpreted as a true annual arithmetic mean.
+
+Rows identified as saline or otherwise unsuitable for the project's drinking-water-oriented WQI calculation were excluded from WQI/ML analysis where applicable.
+
+**The raw CSV (`data/Indian_water_data.csv`) is never modified.** All processed outputs are written to `data/processed/`.
 
 ---
 
 ## Dataset Quality and Limitations
 
-- **BDL values:** 18 BDL (Below Detection Limit) entries across 6 measurement columns. Replaced with proxy MDL/2 values — these substitution values are **UNVERIFIED** (not confirmed from CPCB lab documentation).
-- **Dash values:** Some cells contain `-` (meaning ambiguous). Treated as missing (NaN).
-- **Min > Max anomalies:** 15 rows have Min > Max for at least one parameter. Values are **flagged but not corrected** (correction requires source verification).
-- **Missing values:** Approximately 7% of measurement values are missing. Imputed using group-median per `Water_Body_Type`.
-- **Saline exclusion:** 34 rows (MARINE, SEA, BEACH, and one saline CREEK) are excluded from WQI computation.
-- **Column name ambiguity:** The column `Dissolved - Min/Max` is interpreted as Dissolved Oxygen (mg/L) based on value-range consistency with CPCB NWMP parameters. This interpretation is **UNVERIFIED** — it has not been confirmed against the CPCB data dictionary.
+* **BDL values:** 18 BDL (Below Detection Limit) entries across 6 measurement columns. Replaced with proxy MDL/2 values — these substitution values are **UNVERIFIED** (not confirmed from CPCB lab documentation).
+* **Dash values:** Some cells contain `-` (meaning ambiguous). Treated as missing (NaN).
+* **Min > Max anomalies:** 15 rows have Min > Max for at least one parameter. Values are **flagged but not corrected** (correction requires source verification).
+* **Missing values:** Approximately 7% of measurement values are missing. Imputed using group-median per `Water_Body_Type`.
+* **Saline exclusion:** 34 rows (MARINE, SEA, BEACH, and one saline CREEK) are excluded from WQI computation.
+* **Column name ambiguity:** The column `Dissolved - Min/Max` is interpreted as Dissolved Oxygen (mg/L) based on value-range consistency with CPCB NWMP parameters. This interpretation is **UNVERIFIED** — it has not been confirmed against the CPCB data dictionary.
 
 See `DATASET_AUDIT.md` for the full audit.
 
@@ -65,7 +78,7 @@ See `DATASET_AUDIT.md` for the full audit.
 
 ## Project Structure
 
-```
+```text
 Indian_Water_Quality_AI/
 │
 ├── data/
@@ -101,17 +114,17 @@ Indian_Water_Quality_AI/
 
 ## Technologies Used
 
-| Library | Version | Purpose |
-|---|---|---|
-| Python | 3.13 | Core language |
-| pandas | >=2.0.0 | Data loading and manipulation |
-| numpy | >=1.24.0 | Numerical operations |
-| matplotlib | >=3.7.0 | Visualisation |
-| seaborn | >=0.12.0 | Statistical visualisation |
-| scikit-learn | >=1.2.0 | ML models, pipelines, GroupKFold |
-| scipy | >=1.10.0 | Statistical tests in EDA |
-| joblib | >=1.2.0 | Model serialisation |
-| nbformat | >=5.7.0 | Notebook generation |
+| Library      | Version  | Purpose                          |
+| ------------ | -------- | -------------------------------- |
+| Python       | 3.13     | Core language                    |
+| pandas       | >=2.0.0  | Data loading and manipulation    |
+| numpy        | >=1.24.0 | Numerical operations             |
+| matplotlib   | >=3.7.0  | Visualisation                    |
+| seaborn      | >=0.12.0 | Statistical visualisation        |
+| scikit-learn | >=1.2.0  | ML models, pipelines, GroupKFold |
+| scipy        | >=1.10.0 | Statistical tests in EDA         |
+| joblib       | >=1.2.0  | Model serialisation              |
+| nbformat     | >=5.7.0  | Notebook generation              |
 
 ---
 
@@ -130,21 +143,25 @@ pip install -r requirements.txt
 ## How to Run
 
 **Step 1 — Preprocessing and WQI computation** (already completed; outputs exist in `data/processed/`):
+
 ```bash
 python run_preprocessing.py
 ```
 
 **Step 2 — EDA charts** (already completed; outputs exist in `report_images/`):
+
 ```bash
 python stage4_eda_charts.py
 ```
 
 **Step 3 — Machine Learning** (already completed; outputs exist in `model/` and `report_images/`):
+
 ```bash
 python stage5_ml.py
 ```
 
 **Step 4 — View the notebook:**
+
 Open `SANTOSHKUMARYADAV_IndianWaterQualityAnalytics.ipynb` in Jupyter Notebook or JupyterLab.
 
 ---
@@ -153,15 +170,15 @@ Open `SANTOSHKUMARYADAV_IndianWaterQualityAnalytics.ipynb` in Jupyter Notebook o
 
 Implemented in `backend/preprocess.py` and orchestrated by `run_preprocessing.py`.
 
-| Step | Description |
-|---|---|
-| Column renaming | Positional mapping; `Dissolved` renamed `DO_assumed` with UNVERIFIED label |
-| BDL handling | `BDL` replaced with UNVERIFIED proxy MDL/2; flag column added |
-| Dash handling | `-` values replaced with NaN; flag column added |
-| Min > Max flagging | Anomalous pairs flagged, NOT corrected |
-| Numeric parsing | All measurement columns converted to float (None for missing) |
-| Group-median imputation | Missing values filled using median per `Water_Body_Type` group |
-| WQI applicability flag | Saline water bodies flagged `WQI_applicable=0` |
+| Step                    | Description                                                                |
+| ----------------------- | -------------------------------------------------------------------------- |
+| Column renaming         | Positional mapping; `Dissolved` renamed `DO_assumed` with UNVERIFIED label |
+| BDL handling            | `BDL` replaced with UNVERIFIED proxy MDL/2; flag column added              |
+| Dash handling           | `-` values replaced with NaN; flag column added                            |
+| Min > Max flagging      | Anomalous pairs flagged, NOT corrected                                     |
+| Numeric parsing         | All measurement columns converted to float (None for missing)              |
+| Group-median imputation | Missing values filled using median per `Water_Body_Type` group             |
+| WQI applicability flag  | Saline water bodies flagged `WQI_applicable=0`                             |
 
 All transformations are logged to `data/processed/preprocessing_audit_log.csv`.
 
@@ -173,14 +190,14 @@ A **Modified Weighted Arithmetic WQI** following the formula structure of Brown 
 
 **Formula:**
 
-```
+```text
 WQI = Σ(Qi × Wi) / Σ(Wi)
 Wi  = K / Si    where K = 1 / Σ(1/Si)
 ```
 
 **Annual representative concentration:**
 
-```
+```text
 Ci = (Min + Max) / 2    [range-midpoint approximation — NOT a true annual mean]
 ```
 
@@ -188,17 +205,18 @@ Ci = (Min + Max) / 2    [range-midpoint approximation — NOT a true annual mean
 
 **WQI Classification (project-specific thresholds):**
 
-| WQI Score | Category |
-|---|---|
-| 0 – 25 | Excellent |
-| 25 – 50 | Good |
-| 50 – 75 | Poor |
-| 75 – 100 | Very Poor |
-| > 100 | Unsuitable for Drinking |
+| WQI Score | Category                |
+| --------- | ----------------------- |
+| 0 – 25    | Excellent               |
+| 25 – 50   | Good                    |
+| 50 – 75   | Poor                    |
+| 75 – 100  | Very Poor               |
+| > 100     | Unsuitable for Drinking |
 
 **WQI summary (160 freshwater rows):**
-- Mean WQI: 68.0 | Median: 61.2 | Range: 41.1 – 141.6
-- Good: 22 rows | Poor: 105 rows | Very Poor: 11 rows | Unsuitable: 22 rows
+
+* Mean WQI: 68.0 | Median: 61.2 | Range: 41.1 – 141.6
+* Good: 22 rows | Poor: 105 rows | Very Poor: 11 rows | Unsuitable: 22 rows
 
 ---
 
@@ -206,22 +224,22 @@ Ci = (Min + Max) / 2    [range-midpoint approximation — NOT a true annual mean
 
 14 charts are saved to `report_images/`:
 
-| Chart | Description |
-|---|---|
-| V01 | WQI Score Distribution (histogram + KDE) |
-| V02 | WQI Category Counts (bar chart) |
-| V03 | WQI Score by State (box plot) |
-| V04 | WQI Score by Water Body Type (box plot) |
-| V05 | Parameter Correlation Heatmap |
-| V06 | Assumed DO vs BOD Scatter |
-| V07 | Fecal Coliform vs Total Coliform Scatter |
-| V08 | Missing Values Heatmap |
-| V09 | Temporal WQI Trend (multi-year stations) |
-| V10 | Top 10 Most Polluted Stations |
-| V11 | Top 10 Cleanest Stations |
-| V12 | Random Forest Feature Importance |
-| V13 | Actual vs Predicted WQI (out-of-fold) |
-| V14 | Residual Plot (out-of-fold) |
+| Chart | Description                              |
+| ----- | ---------------------------------------- |
+| V01   | WQI Score Distribution (histogram + KDE) |
+| V02   | WQI Category Counts (bar chart)          |
+| V03   | WQI Score by State (box plot)            |
+| V04   | WQI Score by Water Body Type (box plot)  |
+| V05   | Parameter Correlation Heatmap            |
+| V06   | Assumed DO vs BOD Scatter                |
+| V07   | Fecal Coliform vs Total Coliform Scatter |
+| V08   | Missing Values Heatmap                   |
+| V09   | Temporal WQI Trend (multi-year stations) |
+| V10   | Top 10 Most Polluted Stations            |
+| V11   | Top 10 Cleanest Stations                 |
+| V12   | Random Forest Feature Importance         |
+| V13   | Actual vs Predicted WQI (out-of-fold)    |
+| V14   | Residual Plot (out-of-fold)              |
 
 ---
 
@@ -231,19 +249,20 @@ Ci = (Min + Max) / 2    [range-midpoint approximation — NOT a true annual mean
 
 **Features (Option A — Final Implementation Scope):**
 
-| Feature | Type |
-|---|---|
-| `Temp_mean` | Numeric |
-| `DO_assumed_mean` | Numeric |
-| `pH_mean` | Numeric |
-| `BOD_mean` | Numeric |
-| `Year` | Numeric (ordinal) |
-| `State_Name` | Categorical (one-hot encoded) |
+| Feature           | Type                          |
+| ----------------- | ----------------------------- |
+| `Temp_mean`       | Numeric                       |
+| `DO_assumed_mean` | Numeric                       |
+| `pH_mean`         | Numeric                       |
+| `BOD_mean`        | Numeric                       |
+| `Year`            | Numeric (ordinal)             |
+| `State_Name`      | Categorical (one-hot encoded) |
 | `Water_Body_Type` | Categorical (one-hot encoded) |
 
 **Models:**
-- Ridge Regression (alpha=1.0) — baseline linear model
-- Random Forest Regressor (n_estimators=200, min_samples_leaf=3) — primary model
+
+* Ridge Regression (alpha=1.0) — baseline linear model
+* Random Forest Regressor (n_estimators=200, min_samples_leaf=3) — primary model
 
 All preprocessing (median imputation, standard scaling, one-hot encoding) is performed **inside** the sklearn Pipeline, with imputation statistics computed only on each training fold.
 
@@ -263,32 +282,32 @@ No separate held-out test set was created: with only 160 rows and 150 unique sta
 
 **5-fold GroupKFold Cross-Validation:**
 
-| Model | Mean RMSE | Std RMSE | Mean R² | Std R² |
-|---|---|---|---|---|
-| Ridge Regression (alpha=1.0) | 21.55 | ±16.79 | -0.196 | ±1.594 |
-| Random Forest (n=200, min_leaf=3) | 4.70 | ±1.59 | 0.951 | ±0.017 |
+| Model                             | Mean RMSE | Std RMSE | Mean R² | Std R² |
+| --------------------------------- | --------- | -------- | ------- | ------ |
+| Ridge Regression (alpha=1.0)      | 21.55     | ±16.79   | -0.196  | ±1.594 |
+| Random Forest (n=200, min_leaf=3) | 4.70      | ±1.59    | 0.951   | ±0.017 |
 
 Under the selected 5-fold GroupKFold evaluation, Random Forest produced lower mean RMSE and higher mean R² than Ridge Regression.
 
 **Per-fold results — Random Forest:**
 
-| Fold | RMSE | R² |
-|---|---|---|
-| 1 | 3.44 | 0.952 |
-| 2 | 3.25 | 0.971 |
-| 3 | 4.11 | 0.953 |
-| 4 | 5.82 | 0.955 |
-| 5 | 6.89 | 0.925 |
+| Fold | RMSE | R²    |
+| ---- | ---- | ----- |
+| 1    | 3.44 | 0.952 |
+| 2    | 3.25 | 0.971 |
+| 3    | 4.11 | 0.953 |
+| 4    | 5.82 | 0.955 |
+| 5    | 6.89 | 0.925 |
 
 **Per-fold results — Ridge Regression:**
 
-| Fold | RMSE | R² |
-|---|---|---|
-| 1 | 10.46 | 0.558 |
-| 2 | 11.67 | 0.630 |
-| 3 | 13.56 | 0.487 |
-| 4 | 21.48 | 0.387 |
-| 5 | 50.58 | -3.043 |
+| Fold | RMSE  | R²     |
+| ---- | ----- | ------ |
+| 1    | 10.46 | 0.558  |
+| 2    | 11.67 | 0.630  |
+| 3    | 13.56 | 0.487  |
+| 4    | 21.48 | 0.387  |
+| 5    | 50.58 | -3.043 |
 
 ---
 
@@ -296,20 +315,20 @@ Under the selected 5-fold GroupKFold evaluation, Random Forest produced lower me
 
 All visualisation files are saved as PNG images in `report_images/`:
 
-- `report_images/V01_wqi_distribution.png`
-- `report_images/V02_wqi_category_counts.png`
-- `report_images/V03_wqi_by_state.png`
-- `report_images/V04_wqi_by_water_body_type.png`
-- `report_images/V05_parameter_correlation.png`
-- `report_images/V06_do_vs_bod.png`
-- `report_images/V07_fc_vs_tc.png`
-- `report_images/V08_missing_values.png`
-- `report_images/V09_temporal_trend.png`
-- `report_images/V10_top_10_polluted_stations.png`
-- `report_images/V11_top_10_cleanest_stations.png`
-- `report_images/V12_feature_importance.png`
-- `report_images/V13_actual_vs_predicted.png`
-- `report_images/V14_residuals.png`
+* `report_images/V01_wqi_distribution.png`
+* `report_images/V02_wqi_category_counts.png`
+* `report_images/V03_wqi_by_state.png`
+* `report_images/V04_wqi_by_water_body_type.png`
+* `report_images/V05_parameter_correlation.png`
+* `report_images/V06_do_vs_bod.png`
+* `report_images/V07_fc_vs_tc.png`
+* `report_images/V08_missing_values.png`
+* `report_images/V09_temporal_trend.png`
+* `report_images/V10_top_10_polluted_stations.png`
+* `report_images/V11_top_10_cleanest_stations.png`
+* `report_images/V12_feature_importance.png`
+* `report_images/V13_actual_vs_predicted.png`
+* `report_images/V14_residuals.png`
 
 ---
 
@@ -335,22 +354,22 @@ All visualisation files are saved as PNG images in `report_images/`:
 
 ## Project Files
 
-| File | Description |
-|---|---|
-| `data/Indian_water_data.csv` | Raw monitoring data (read-only) |
-| `data/processed/water_quality_processed.csv` | Cleaned dataset |
-| `data/processed/wqi_scores.csv` | WQI scores and categories |
-| `data/processed/preprocessing_audit_log.csv` | Full transformation log |
-| `backend/preprocess.py` | Preprocessing functions |
-| `backend/wqi_calculator.py` | WQI computation functions |
-| `model/best_model.pkl` | Saved Random Forest model |
-| `model/ridge_model.pkl` | Saved Ridge Regression model |
-| `model/model_metadata.json` | CV metrics, features, disclosures |
-| `stage4_eda_charts.py` | EDA chart generation script |
-| `stage5_ml.py` | ML pipeline script |
-| `run_preprocessing.py` | Preprocessing runner |
-| `DATASET_AUDIT.md` | Data quality audit report |
-| `PROJECT_PLAN.md` | Full project plan and methodology |
+| File                                         | Description                       |
+| -------------------------------------------- | --------------------------------- |
+| `data/Indian_water_data.csv`                 | Raw monitoring data (read-only)   |
+| `data/processed/water_quality_processed.csv` | Cleaned dataset                   |
+| `data/processed/wqi_scores.csv`              | WQI scores and categories         |
+| `data/processed/preprocessing_audit_log.csv` | Full transformation log           |
+| `backend/preprocess.py`                      | Preprocessing functions           |
+| `backend/wqi_calculator.py`                  | WQI computation functions         |
+| `model/best_model.pkl`                       | Saved Random Forest model         |
+| `model/ridge_model.pkl`                      | Saved Ridge Regression model      |
+| `model/model_metadata.json`                  | CV metrics, features, disclosures |
+| `stage4_eda_charts.py`                       | EDA chart generation script       |
+| `stage5_ml.py`                               | ML pipeline script                |
+| `run_preprocessing.py`                       | Preprocessing runner              |
+| `DATASET_AUDIT.md`                           | Data quality audit report         |
+| `PROJECT_PLAN.md`                            | Full project plan and methodology |
 
 ---
 
@@ -358,11 +377,11 @@ All visualisation files are saved as PNG images in `report_images/`:
 
 This project demonstrates a complete end-to-end data analytics workflow applied to Indian surface water quality data. Key findings:
 
-- The majority (66%) of the 160 analysed freshwater monitoring stations fall into the "Poor" WQI category.
-- States such as Uttar Pradesh, Haryana, and Goa showed relatively lower WQI scores (better quality), while Odisha, Tamil Nadu, and Maharashtra showed the highest mean WQI scores.
-- Sewage Treatment Plants (STPs) showed markedly higher WQI scores than natural water bodies.
-- Under 5-fold GroupKFold evaluation, Random Forest achieved mean RMSE of 4.70 and mean R² of 0.951, compared to Ridge Regression's mean RMSE of 21.55 and mean R² of -0.196.
-- However, these results must be interpreted with the partial target reconstruction caveat: BOD, DO, and pH are WQI components, and BOD alone accounts for approximately 96% of the Random Forest's feature importance.
+* The majority (66%) of the 160 analysed freshwater monitoring stations fall into the "Poor" WQI category.
+* States such as Uttar Pradesh, Haryana, and Goa showed relatively lower WQI scores (better quality), while Odisha, Tamil Nadu, and Maharashtra showed the highest mean WQI scores.
+* Sewage Treatment Plants (STPs) showed markedly higher WQI scores than natural water bodies.
+* Under 5-fold GroupKFold evaluation, Random Forest achieved mean RMSE of 4.70 and mean R² of 0.951, compared to Ridge Regression's mean RMSE of 21.55 and mean R² of -0.196.
+* However, these results must be interpreted with the partial target reconstruction caveat: BOD, DO, and pH are WQI components, and BOD alone accounts for approximately 96% of the Random Forest's feature importance.
 
 All results are reproducible from the provided source files. The raw dataset has not been modified.
 
@@ -370,10 +389,10 @@ All results are reproducible from the provided source files. The raw dataset has
 
 ## References
 
-- Brown, R.M., McClelland, N.I., Deininger, R.A., & Tozer, R.G. (1970). A water quality index — do we dare? *Water and Sewage Works*, 117, 339–343.
-- Bureau of Indian Standards (2012). *IS:10500 — Drinking Water Specification (Second Revision).*
-- Central Pollution Control Board (CPCB). National Water Quality Monitoring Programme (NWMP).
-- Tyagi, S., Sharma, B., Singh, P., & Dobhal, R. (2013). Water quality assessment in terms of water quality index. *American Journal of Water Resources*, 1(3), 34–38. DOI: 10.12691/ajwr-1-3-3.
+* Brown, R.M., McClelland, N.I., Deininger, R.A., & Tozer, R.G. (1970). A water quality index — do we dare? *Water and Sewage Works*, 117, 339–343.
+* Bureau of Indian Standards (2012). *IS:10500 — Drinking Water Specification (Second Revision).*
+* Central Pollution Control Board (CPCB). National Water Quality Monitoring Programme (NWMP).
+* Tyagi, S., Sharma, B., Singh, P., & Dobhal, R. (2013). Water quality assessment in terms of water quality index. *American Journal of Water Resources*, 1(3), 34–38. DOI: 10.12691/ajwr-1-3-3.
 
 ---
 
